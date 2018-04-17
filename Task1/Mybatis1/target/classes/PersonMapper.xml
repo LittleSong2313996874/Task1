@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace：命名空间，用于隔离sql -->
+<!-- 还有一个很重要的作用，使用动态代理开发DAO，1. namespace必须和Mapper接口类路径一致 -->
+<mapper namespace="a.b.dao.PersonDao3">	
+	
+	<resultMap type="a.b.entity.Person" id="PersonMap">
+		<id property="id" column="id"/>
+		<result property="NAME" column="NAME"/>
+		<result property="age" column="age"/>
+		<result property="gender" column="gender"/>
+	</resultMap>
+
+	<!-- 标签内部参数说明： -->
+    <!-- 1. id必须和Mapper接口方法名一致 -->
+    <!-- 2. parameterType必须和接口方法参数类型一致 -->
+    <!-- 3. resultType必须和接口方法返回值类型一致 -->
+
+	<!-- 增加学生 -->
+	<insert id="add" parameterType="a.b.entity.Person">
+		insert into table1(NAME,gender,age) values(#{NAME},#{gender},#{age})
+	</insert>
+	
+	<!-- 根据ID查询学生
+		 如果参数不是一个实体的话，只是一个普通变量，例如:int,double,String
+		 这里的#{中间的变量名可以随便写}，不过提倡就用方法的形参
+	 -->
+	<select id="findById" parameterType="int" resultType="a.b.entity.Person">
+		select id,NAME,gender,age from table1 where id = #{id}
+	</select>
+	
+	<!-- 查询所有学生 
+		 理论上resultType要写List<Student>
+		 但这里只需书写List中的类型即可，即只需书写Person的全路径名
+	-->
+	<select id="findAll" resultType="a.b.entity.Person">
+		select id,NAME,gender,age from table1
+	</select>
+	
+	<!-- 更新学生 -->
+	<update id="update" parameterType="a.b.entity.Person">
+		update table1 set name=#{NAME},gender=#{gender},age=#{age} where id=#{id}
+	</update>
+	
+	<!-- 删除学生 --> 
+	<delete id="delete" parameterType="a.b.entity.Person">
+		delete from table1 where id = #{id}
+	</delete>
+	
+	<!-- 
+		注意：这个insert/update/delete标签只是一个模板，在做操作时，其实是以SQL语句为核心的
+		     即在做增/删/时，insert/update/delete标签可通用，
+		     但做查询时只能用select标签
+		     我们提倡什么操作就用什么标签
+		     resultType="a.b.entity.Person"
+	-->	
+
+<!-- 动态SQL -->
+
+	<!-- where标签会自动判断哪个是组后一个字段，然后自动去点那个and -->
+	<select id="findALL_" parameterType="MAP" resultMap="PersonMap">
+		SELECT id,NAME,gender,age FROM table1 
+		<where>
+			<if test="pid!=null">
+				and id = #{pid}
+			</if>
+			<if test="pname!=null">
+				 and NAME = #{pname}
+			</if>
+			<if test="pgender!=null">
+				 and gender = #{pgender}
+			</if>
+			<if test="page!=null">
+				and age = #{page}
+			</if>
+		</where>
+	</select>
+	<!-- set标签会自动判断哪个是组后一个字段，然后自动去点那个逗号 -->
+	<update id="upDATA_" parameterType="map">
+		update table1 
+		<set>
+			<if test="pname!=null">
+				NAME = #{pname},
+			</if>
+			<if test="pgender!=null">
+				gender = #{pgender},
+			</if>
+			<if test="page!=null">
+				age = #{page},
+			</if> 
+			
+		</set>
+		where id=#{pid}
+	</update>
+	
+	<delete id="DELETE_" >
+	
+		delete from table1 where id in 
+		<foreach collection="array" open="(" close=")" separator="," item="sadfsadf">
+			#{sadfsadf}
+		</foreach>
+		
+	</delete>
+	
+	<!-- sql片段对应字段名,id属性值任意 -->
+	<sql id="key">
+		<!-- suffixOverrides表示去掉最后一个逗号 -->
+		<trim suffixOverrides=",">
+			<if test="NAME!=null">
+				name,
+			</if>
+			<if test="gender!=null">
+				gender,
+			</if>
+			<if test="age!=null">
+				age,
+			</if>
+		</trim>
+	</sql>
+	
+	<!-- sql片段对应'?',id属性值任意 -->
+	<sql id="value">
+		<!-- 去掉最后一个, -->
+		<trim suffixOverrides=",">
+			<if test="NAME!=null">
+				#{NAME},
+			</if>
+			<if test="gender!=null">
+				#{gender},
+			</if>
+			<if test="age!=null">
+				#{age},
+			</if>
+		</trim>
+	</sql>
+	
+	<!-- <include refid="key"/>和<include refid="value"/>表示引用上面定义的sql片段 -->
+	<select id="ADD_" parameterType="a.b.entity.Person" >
+		insert into table1(<include refid="key"/>) values(<include refid="value"/>)
+	</select>
+	
+	
+	
+	<insert id="savePerson" parameterType="a.b.entity.Person">
+		<!-- selectKey 标签实现主键返回 -->
+		<!-- keyColumn:主键对应的表中的哪一列 -->
+		<!-- keyProperty：主键对应的pojo中的哪一个属性 -->
+		<!-- order：设置在执行insert语句前执行查询id的sql，还是在执行insert语句之后执行查询id的sql -->
+		<!-- resultType：设置返回的id的类型 -->
+		<selectKey keyColumn="id" keyProperty="id" order="AFTER"
+		resultType="int">
+		SELECT LAST_INSERT_ID()
+		<!-- LAST_INSERT_ID():是mysql的函数，返回auto_increment自增列新记录id值。
+		 -->
+		</selectKey>
+		INSERT INTO `user`
+		(username,birthday,sex,address) VALUES
+		(#{username},#{birthday},#{sex},#{address})
+	</insert>
+	
+	
+</mapper>
+
+
+
+

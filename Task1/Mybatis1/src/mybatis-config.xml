@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	
+	<!-- 加载资源文件 -->
+ <!--    <properties resource="log4j.properties" />   -->
+    <properties resource="jdbc.properties" />  
+	
+	<!-- default:选择默认使用的哪一个配置 -->
+    <environments default="mysql-dev">
+        
+        <environment id="mysql-dev">
+        <!-- type:表示mybatis使用jdbc事务管理方式
+                                                  如果参数为managed，则表示将事务交给了第三方    -->
+            <transactionManager type="JDBC" />
+            <!-- mybatis使用连接池方式来获取连接 -->
+            <dataSource type="POOLED">
+            	<!-- 配置与数据库交互的4个必要属性 -->
+                <property name="driver" value="${driver}" />
+                <property name="url" value="${url}" />
+                <property name="username" value="${username}" />
+                <property name="password" value="${password}" />
+            </dataSource>
+        </environment>
+        
+        <environment id="oracle_dev"> 
+			<transactionManager type="jdbc"/>
+			<dataSource type="pooled">
+				<property name="driver" value="${oracle.driver}"/>
+				<property name="url" value="${oracle.url}"/>
+				<property name="username" value="${oracle.username}"/>
+				<property name="password" value="${oracle.password}"/>
+			</dataSource>
+		</environment>
+		
+    </environments>
+   <!--  <mappers>
+		<mapper resource="PersonMapper.xml" />
+    </mappers> -->
+</configuration>
