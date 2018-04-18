@@ -95,6 +95,20 @@ public class ConnectImpl implements ConnectDao {
 
 		return list;
 	}
+	
+	public List<Person> findAll(){
+
+		String sql = "SELECT * FROM table1";
+		/*
+		  使用Spring的JdbcTemplate查询数据库，获取List结果列表，数据库表字段和实体类自动对应，可以使用BeanPropertyRowMapper。
+		  注意：
+		  自动绑定，需要列名称和Java实体类名字一致，如：属性名 “userName” 可以匹配数据库中的列字段 "USERNAME" 或 “user_name”。这样，我们就不需要一个个手动绑定了，大大提高了开发效率。
+		 */
+		List<Person> students  = jdbcTemplate.query(sql, new BeanPropertyRowMapper(Person.class));
+
+		return students;
+	}
+	
 
 	@Override
 	public void delete(Integer personid) throws Exception {
