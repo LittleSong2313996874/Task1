@@ -15,7 +15,7 @@ public interface ConnectDao {
 	  public List<Person> getPersons();
 	  
 	  public void delete(Integer personid) throws Exception;
-
+	   List<Person> findAll();
 
 	  public List<Person> getPersons2();
 }
